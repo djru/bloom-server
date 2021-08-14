@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -72,12 +73,16 @@ func main() {
 	db.AutoMigrate(&structs.User{})
 	db.AutoMigrate(&structs.Reading{})
 
+	opt, err := redis.ParseURL(os.Getenv("REDIS_URL"))
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("addr is", opt.Addr)
+	fmt.Println("db is", opt.DB)
+	fmt.Println("password is", opt.Password)
+
 	dbConn = db
-	redisConn = redis.NewClient(&redis.Options{
-        Addr:     os.Getenv("REDIS_URL"),
-        Password: "", // no password set
-        DB:       0,  // use default DB
-    })
+	redisConn = redis.NewClient(opt)
 
 
 	setupHandlers(r, dbConn, redisConn)
