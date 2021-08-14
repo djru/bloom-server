@@ -1,5 +1,6 @@
 module bloom
 
+// +heroku goVersion go1.116
 go 1.16
 
 require (

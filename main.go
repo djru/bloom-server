@@ -81,5 +81,5 @@ func main() {
 
 
 	setupHandlers(r, dbConn, redisConn)
-	log.Fatal(r.Run(":8000"))
+	log.Fatal(r.Run(":80"))
 }
