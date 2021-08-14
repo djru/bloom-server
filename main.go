@@ -81,5 +81,5 @@ func main() {
 
 
 	setupHandlers(r, dbConn, redisConn)
-	log.Fatal(r.Run(":80"))
+	log.Fatal(r.Run(":" + os.Getenv("PORT")))
 }
