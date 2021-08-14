@@ -1,9 +1,11 @@
 module bloom
 
+// https://stackoverflow.com/questions/56968852/specify-go-version-for-go-mod-file
 // +heroku goVersion go1.16
 go 1.16
 
 require (
+	github.com/gin-contrib/cors v1.3.1 // indirect
 	github.com/gin-gonic/gin v1.7.3
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/google/uuid v1.3.0

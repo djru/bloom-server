@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
 	"github.com/joho/godotenv"
@@ -43,8 +44,8 @@ func setupHandlers(r *gin.Engine, db *gorm.DB, redis *redis.Client){
 	r.GET("/sendRecover", h.StartRecoveryProcessHandler)
 	r.POST("/recover", h.EndRecoveryProcessHandler)
 
-	r.GET("/readings", h.GetReadingsHandler)
-	r.POST("/newReading", h.NewReadingHandler)
+	r.GET("/readings", h.SessionMiddleware, h.GetReadingsHandler)
+	r.POST("/newReading", h.SessionMiddleware, h.NewReadingHandler)
 
 	r.POST("/login", h.LoginHandler)
 	r.GET("/logout", h.SessionMiddleware, h.LogoutHandler)
@@ -55,6 +56,12 @@ func setupHandlers(r *gin.Engine, db *gorm.DB, redis *redis.Client){
 func main() {
 	r := gin.Default()
 	r.Use(gin.Recovery())
+
+	config := cors.DefaultConfig()
+	// https://github.com/gin-contrib/cors#using-defaultconfig-as-start-point
+	config.AllowOrigins = []string{"https://bloom-health.herokuapp.com", "https://bloom-health.vercel.com"}
+	r.Use(cors.New(config))
+	
 
 	if os.Getenv("ENV") == "dev"{
 		err := godotenv.Load()
@@ -73,6 +80,7 @@ func main() {
 	db.AutoMigrate(&structs.User{})
 	db.AutoMigrate(&structs.Reading{})
 
+	// https://pkg.go.dev/github.com/go-redis/redis#ParseURL
 	opt, err := redis.ParseURL(os.Getenv("REDIS_URL"))
 	if err != nil {
 		panic(err)
@@ -84,7 +92,7 @@ func main() {
 	dbConn = db
 	redisConn = redis.NewClient(opt)
 
-
 	setupHandlers(r, dbConn, redisConn)
+	// https://stackoverflow.com/questions/28706180/setting-the-port-for-node-js-server-on-heroku
 	log.Fatal(r.Run(":" + os.Getenv("PORT")))
 }
