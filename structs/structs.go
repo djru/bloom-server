@@ -35,5 +35,5 @@ type Reading struct{
 	Pulse int
 	Feeling int
 	UserID uint
-	User User
+	User User `json:"-"`
 }
