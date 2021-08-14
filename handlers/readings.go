@@ -15,6 +15,7 @@ func (e *Handlers) NewReadingHandler(c *gin.Context){
 	}
 
 	reading := structs.Reading{Top: payload.Top, Bottom: payload.Bottom, Pulse: payload.Pulse, UserID: uint(id), Feeling: payload.Feeling}
+	e.DbConn.Create(&reading)
 	c.JSON(200, reading)
 }
 
