@@ -3,6 +3,7 @@ package handlers
 import (
 	"bloom/structs"
 	"fmt"
+	"net/http"
 	"os"
 	"strconv"
 	"time"
@@ -48,7 +49,17 @@ func (e *Handlers) LoginHandler(c *gin.Context) {
 		panic(err)
 	}
 
-	c.SetCookie("session", session, week, "/", os.Getenv("DOMAIN"), false, true)
+	// c.SetCookie("session", session, week, "/", os.Getenv("DOMAIN"), true, true)
+	cookie := http.Cookie{
+		Name:     "session",
+		Value:    session,
+		Domain:   os.Getenv("DOMAIN"),
+		MaxAge:   week,
+		Secure:   true,
+		HttpOnly: true,
+		SameSite: http.SameSiteNoneMode,
+	}
+	c.Request.AddCookie(&cookie)
 	msg := "logged in"
 	if new {
 		msg = fmt.Sprintf("logged in. You can confirm you email %s at /confirm/%s \n", user.Email, user.ConfirmID)
@@ -65,8 +76,16 @@ func (e *Handlers) LogoutHandler(c *gin.Context) {
 		e.RedisConn.Del("session:" + string(sess))
 	}
 	e.RedisConn.Del("sessionsForUser:" + string(userId))
-
-	c.SetCookie("session", "", 0, "/", "localhost", false, true)
+	cookie := http.Cookie{
+		Name:     "session",
+		Value:    "",
+		Domain:   os.Getenv("DOMAIN"),
+		MaxAge:   0,
+		Secure:   true,
+		HttpOnly: true,
+		SameSite: http.SameSiteNoneMode,
+	}
+	c.Request.AddCookie(&cookie)
 	c.JSON(200, gin.H{"status": "succeeded", "message": "logged out"})
 }
 
