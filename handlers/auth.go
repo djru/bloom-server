@@ -48,18 +48,8 @@ func (e *Handlers) LoginHandler(c *gin.Context) {
 	if err := e.RedisConn.SAdd("sessionsForUser:"+fmt.Sprint(user.ID), session).Err(); err != nil {
 		panic(err)
 	}
-
-	// c.SetCookie("session", session, week, "/", os.Getenv("DOMAIN"), true, true)
-	cookie := http.Cookie{
-		Name:     "session",
-		Value:    session,
-		Domain:   os.Getenv("DOMAIN"),
-		MaxAge:   week,
-		Secure:   true,
-		HttpOnly: true,
-		SameSite: http.SameSiteNoneMode,
-	}
-	c.Request.AddCookie(&cookie)
+	c.SetSameSite(http.SameSiteNoneMode)
+	c.SetCookie("session", session, week, "/", os.Getenv("DOMAIN"), true, true)
 	msg := "logged in"
 	if new {
 		msg = fmt.Sprintf("logged in. You can confirm you email %s at /confirm/%s \n", user.Email, user.ConfirmID)
@@ -76,16 +66,8 @@ func (e *Handlers) LogoutHandler(c *gin.Context) {
 		e.RedisConn.Del("session:" + string(sess))
 	}
 	e.RedisConn.Del("sessionsForUser:" + string(userId))
-	cookie := http.Cookie{
-		Name:     "session",
-		Value:    "",
-		Domain:   os.Getenv("DOMAIN"),
-		MaxAge:   0,
-		Secure:   true,
-		HttpOnly: true,
-		SameSite: http.SameSiteNoneMode,
-	}
-	c.Request.AddCookie(&cookie)
+	c.SetSameSite(http.SameSiteNoneMode)
+	c.SetCookie("session", "", 0, "/", os.Getenv("DOMAIN"), true, true)
 	c.JSON(200, gin.H{"status": "succeeded", "message": "logged out"})
 }
 
