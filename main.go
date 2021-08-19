@@ -21,22 +21,17 @@ import (
 // TODO email verification on signup
 // TODO domain name
 // TODO deploy the front end to vercel
-// TODO deploy the back end to heroku
 // TODO find a way to keep the heroku app up
-// TODO CORS if necessary
 // TODO set up stack: vercel, heroku, sendgrid, cloudflare
 // TODO endpoint to get all readings as csv
 // TODO endpoint to delete my data (send email)
-// TODO extract claims in a function, abstract it and use it anywhere we need
 
-var identityKey = "email"
 var dbConn *gorm.DB
 var ctx = context.Background()
 var redisConn *redis.Client
 var week int = 60 * 60 * 24 * 7
 
-
-func setupHandlers(r *gin.Engine, db *gorm.DB, redis *redis.Client){
+func setupHandlers(r *gin.Engine, db *gorm.DB, redis *redis.Client) {
 	h := handlers.Handlers{DbConn: db, RedisConn: redis}
 	r.GET("/", h.HomeHandler)
 
@@ -59,11 +54,10 @@ func main() {
 
 	config := cors.DefaultConfig()
 	// https://github.com/gin-contrib/cors#using-defaultconfig-as-start-point
-	config.AllowOrigins = []string{"https://bloom-health.herokuapp.com", "https://bloom-health.vercel.com"}
+	config.AllowOrigins = []string{"https://bloom-health.herokuapp.com", "https://bloom-health.vercel.com", "http://localhost"}
 	r.Use(cors.New(config))
-	
 
-	if os.Getenv("ENV") == "dev"{
+	if os.Getenv("ENV") == "dev" {
 		err := godotenv.Load()
 		if err != nil {
 			log.Fatal("Error loading .env file")
@@ -76,7 +70,7 @@ func main() {
 	sqlDB.SetMaxIdleConns(10)
 	sqlDB.SetMaxOpenConns(100)
 	sqlDB.SetConnMaxLifetime(time.Hour)
-	
+
 	db.AutoMigrate(&structs.User{})
 	db.AutoMigrate(&structs.Reading{})
 
