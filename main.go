@@ -54,7 +54,7 @@ func main() {
 
 	config := cors.DefaultConfig()
 	// https://github.com/gin-contrib/cors#using-defaultconfig-as-start-point
-	config.AllowOrigins = []string{"https://bloom-health.herokuapp.com", "https://bloom-ui.vercel.app/"}
+	config.AllowOrigins = []string{"https://bloom-health.herokuapp.com", "https://bloom-ui.vercel.app"}
 	r.Use(cors.New(config))
 
 	if os.Getenv("ENV") == "dev" {
