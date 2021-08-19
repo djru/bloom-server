@@ -54,8 +54,13 @@ func main() {
 
 	config := cors.DefaultConfig()
 	// https://github.com/gin-contrib/cors#using-defaultconfig-as-start-point
+	// https://stackoverflow.com/questions/29418478/go-gin-framework-cors
+	// https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+	// https://stackoverflow.com/a/48763475/5360657
+	// https://blog.heroku.com/chrome-changes-samesite-cookie
 	config.AllowOrigins = []string{"https://bloom-health.herokuapp.com", "https://bloom-ui.vercel.app"}
 	config.AllowCredentials = true
+	config.AllowHeaders = []string{"cookie", "connection", "Host", "Origin", "Referrer"}
 	r.Use(cors.New(config))
 
 	if os.Getenv("ENV") == "dev" {
