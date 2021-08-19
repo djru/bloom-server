@@ -3,7 +3,6 @@ package handlers
 import (
 	"bloom/structs"
 	"fmt"
-	"os"
 	"strconv"
 	"time"
 
@@ -48,7 +47,8 @@ func (e *Handlers) LoginHandler(c *gin.Context) {
 		panic(err)
 	}
 
-	c.SetCookie("session", session, week, "/", os.Getenv("DOMAIN"), false, true)
+	c.SetCookie("session", session, week, "", "", false, true)
+
 	msg := "logged in"
 	if new {
 		msg = fmt.Sprintf("logged in. You can confirm you email %s at /confirm/%s \n", user.Email, user.ConfirmID)
@@ -95,7 +95,7 @@ func (e *Handlers) SessionMiddleware(c *gin.Context) {
 	c.Next()
 }
 
-func (e *Handlers) WhoAmIHandler(c *gin.Context){
+func (e *Handlers) WhoAmIHandler(c *gin.Context) {
 	id := c.MustGet("userId").(uint64)
 	var user structs.User
 	e.DbConn.Find(&user, id)
