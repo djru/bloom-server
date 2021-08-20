@@ -58,7 +58,7 @@ func main() {
 	// https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
 	// https://stackoverflow.com/a/48763475/5360657
 	// https://blog.heroku.com/chrome-changes-samesite-cookie
-	config.AllowOrigins = []string{"https://bloom-health.herokuapp.com", "https://bloom-ui.vercel.app"}
+	config.AllowOrigins = []string{"https://bloom-health.herokuapp.com", "https://bloom-ui.vercel.app", "https://www.bloomhealth.app", "https://bloomhealth.app"}
 	config.AllowCredentials = true
 	config.AllowHeaders = []string{"cookie", "connection", "Host", "Origin", "Referrer"}
 	r.Use(cors.New(config))
