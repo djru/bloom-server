@@ -3,7 +3,6 @@ package handlers
 import (
 	"bloom/structs"
 	"fmt"
-	"net/http"
 	"os"
 	"strconv"
 	"time"
@@ -48,7 +47,6 @@ func (e *Handlers) LoginHandler(c *gin.Context) {
 	if err := e.RedisConn.SAdd("sessionsForUser:"+fmt.Sprint(user.ID), session).Err(); err != nil {
 		panic(err)
 	}
-	c.SetSameSite(http.SameSiteNoneMode)
 	c.SetCookie("session", session, week, "/", os.Getenv("DOMAIN"), true, true)
 	msg := "logged in"
 	if new {
@@ -66,7 +64,6 @@ func (e *Handlers) LogoutHandler(c *gin.Context) {
 		e.RedisConn.Del("session:" + string(sess))
 	}
 	e.RedisConn.Del("sessionsForUser:" + string(userId))
-	c.SetSameSite(http.SameSiteNoneMode)
 	c.SetCookie("session", "", 0, "/", os.Getenv("DOMAIN"), true, true)
 	c.JSON(200, gin.H{"status": "succeeded", "message": "logged out"})
 }

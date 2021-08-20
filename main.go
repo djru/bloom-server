@@ -58,7 +58,16 @@ func main() {
 	// https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
 	// https://stackoverflow.com/a/48763475/5360657
 	// https://blog.heroku.com/chrome-changes-samesite-cookie
+
+	// A brief note on how the app is being hosted in prod.
+	// Heroku makes you pay for ssl support, which I don't want to do. But cloudflare can proxy
+	// the requests, do ssl termination and then do http to the backend
+	// this is ideal for the heroku setup BUT it breaks the vercel setup.
+	// This is because vercel automatically redirects http to https
+	// which causes a redirect loop because ever time the browser is redirected, cloudflare turns it into an http request
+	// so I had to turn off cloudflare proxing for the frontend.
 	config.AllowOrigins = []string{"https://bloom-health.herokuapp.com", "https://bloom-ui.vercel.app", "https://www.bloomhealth.app", "https://bloomhealth.app"}
+	config.AllowCredentials = true
 	r.Use(cors.New(config))
 
 	if os.Getenv("ENV") == "dev" {
