@@ -43,6 +43,7 @@ func setupHandlers(r *gin.Engine, db *gorm.DB, redis *redis.Client) {
 	r.POST("/newReading", h.SessionMiddleware, h.NewReadingHandler)
 
 	r.POST("/login", h.LoginHandler)
+	r.POST("/signup", h.LoginHandler)
 	r.GET("/logout", h.SessionMiddleware, h.LogoutHandler)
 
 	r.GET("/whoami", h.SessionMiddleware, h.WhoAmIHandler)
