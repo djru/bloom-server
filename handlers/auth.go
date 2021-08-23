@@ -3,6 +3,7 @@ package handlers
 import (
 	"bloom/structs"
 	"fmt"
+	"net/http"
 	"os"
 	"strconv"
 	"time"
@@ -66,6 +67,7 @@ func (e *Handlers) LogoutHandler(c *gin.Context) {
 	e.RedisConn.Del("sessionsForUser:" + string(userId))
 	c.SetCookie("session", "", 0, "/", os.Getenv("DOMAIN"), true, true)
 	c.JSON(200, gin.H{"status": "succeeded", "message": "logged out"})
+	c.Redirect(http.StatusFound, os.Getenv("FRONTEND_URL"))
 }
 
 func (e *Handlers) SessionMiddleware(c *gin.Context) {
