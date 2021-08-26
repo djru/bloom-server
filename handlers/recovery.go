@@ -61,7 +61,6 @@ func (e *Handlers) ConfirmEmailHandler(c *gin.Context) {
 	user.ConfirmID = ""
 	user.Confirmed = true
 	e.DbConn.Save(&user)
-	c.JSON(200, gin.H{"message": "user confirmed"})
 	c.Redirect(http.StatusFound, "https://bloomhealth.app?msg="+url.QueryEscape("Email confirmed"))
 }
 
