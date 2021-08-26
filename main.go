@@ -35,10 +35,10 @@ func setupHandlers(r *gin.Engine, db *gorm.DB, redis *redis.Client) {
 	h := handlers.Handlers{DbConn: db, RedisConn: redis}
 	r.GET("/", h.HomeHandler)
 
+	r.GET("/resend", h.SessionMiddleware, h.ReSendConfirmEmailHandler)
 	r.GET("/confirm/:id", h.ConfirmEmailHandler)
 	r.GET("/sendRecover", h.StartRecoveryProcessHandler)
 	r.POST("/recover", h.EndRecoveryProcessHandler)
-	r.GET("/resend", h.SessionMiddleware, h.ReSendConfirmEmail)
 
 	r.GET("/readings", h.SessionMiddleware, h.GetReadingsHandler)
 	r.POST("/newReading", h.SessionMiddleware, h.NewReadingHandler)
