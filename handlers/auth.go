@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 	"strconv"
 	"time"
@@ -60,14 +61,6 @@ func (e *Handlers) LoginHandler(c *gin.Context) {
 	c.JSON(200, gin.H{"status": "succeeded", "message": msg, "new": new})
 }
 
-func (e *Handlers) ReSendConfirmEmail(c *gin.Context) {
-	id := c.MustGet("userId").(uint64)
-	var user structs.User
-	e.DbConn.Find(&user, id)
-	email.SendConfirmEmail(user.Email, user.ConfirmID)
-	c.JSON(200, gin.H{"email": user.Email, "id": user.ID, "confirmed": user.Confirmed})
-}
-
 func (e *Handlers) LogoutHandler(c *gin.Context) {
 	userId := c.MustGet("userIdAsStr").(string)
 	sessions, _ := e.RedisConn.SMembers("sessionsForUser:" + string(userId)).Result()
@@ -78,7 +71,7 @@ func (e *Handlers) LogoutHandler(c *gin.Context) {
 	e.RedisConn.Del("sessionsForUser:" + string(userId))
 	c.SetCookie("session", "", 0, "/", os.Getenv("DOMAIN"), true, true)
 	// https://github.com/gin-gonic/gin#redirects
-	c.Redirect(http.StatusFound, os.Getenv("FRONTEND_URL"))
+	c.Redirect(http.StatusFound, "https://bloomhealth.app?msg="+url.QueryEscape("You have been logged out"))
 }
 
 func (e *Handlers) SessionMiddleware(c *gin.Context) {
