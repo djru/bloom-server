@@ -11,6 +11,8 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/joho/godotenv v1.3.0
 	github.com/lib/pq v1.6.0 // indirect
+	github.com/sendgrid/rest v2.6.4+incompatible // indirect
+	github.com/sendgrid/sendgrid-go v3.10.0+incompatible // indirect
 	golang.org/x/crypto v0.0.0-20210813211128-0a44fdfbc16e
 	gorm.io/driver/postgres v1.1.0
 	gorm.io/gorm v1.21.13

@@ -1,12 +1,14 @@
 package handlers
 
 import (
-	"bloom/structs"
 	"fmt"
 	"net/http"
 	"os"
 	"strconv"
 	"time"
+
+	"bloom/email"
+	"bloom/structs"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -33,6 +35,7 @@ func (e *Handlers) LoginHandler(c *gin.Context) {
 		// save
 		e.DbConn.Create(&user)
 		new = true
+		email.SendConfirmEmail(user.Email, user.ConfirmID)
 		// TK send email to /
 		// if the user is found, compare the passwords
 	} else if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginCreds.Password)); err != nil {
@@ -51,10 +54,18 @@ func (e *Handlers) LoginHandler(c *gin.Context) {
 	c.SetCookie("session", session, week, "/", os.Getenv("DOMAIN"), true, true)
 	msg := "logged in"
 	if new {
-		msg = fmt.Sprintf("logged in. You can confirm you email %s at /confirm/%s \n", user.Email, user.ConfirmID)
+		msg = fmt.Sprintf("signed up. You can confirm you email %s at /confirm/%s \n", user.Email, user.ConfirmID)
 	}
 
-	c.JSON(200, gin.H{"status": "succeeded", "message": msg})
+	c.JSON(200, gin.H{"status": "succeeded", "message": msg, "new": new})
+}
+
+func (e *Handlers) ReSendConfirmEmail(c *gin.Context) {
+	id := c.MustGet("userId").(uint64)
+	var user structs.User
+	e.DbConn.Find(&user, id)
+	email.SendConfirmEmail(user.Email, user.ConfirmID)
+	c.JSON(200, gin.H{"email": user.Email, "id": user.ID, "confirmed": user.Confirmed})
 }
 
 func (e *Handlers) LogoutHandler(c *gin.Context) {
@@ -66,7 +77,7 @@ func (e *Handlers) LogoutHandler(c *gin.Context) {
 	}
 	e.RedisConn.Del("sessionsForUser:" + string(userId))
 	c.SetCookie("session", "", 0, "/", os.Getenv("DOMAIN"), true, true)
-	c.JSON(200, gin.H{"status": "succeeded", "message": "logged out"})
+	// https://github.com/gin-gonic/gin#redirects
 	c.Redirect(http.StatusFound, os.Getenv("FRONTEND_URL"))
 }
 

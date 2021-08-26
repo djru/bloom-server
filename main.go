@@ -38,6 +38,7 @@ func setupHandlers(r *gin.Engine, db *gorm.DB, redis *redis.Client) {
 	r.GET("/confirm/:id", h.ConfirmEmailHandler)
 	r.GET("/sendRecover", h.StartRecoveryProcessHandler)
 	r.POST("/recover", h.EndRecoveryProcessHandler)
+	r.GET("/resend", h.SessionMiddleware, h.ReSendConfirmEmail)
 
 	r.GET("/readings", h.SessionMiddleware, h.GetReadingsHandler)
 	r.POST("/newReading", h.SessionMiddleware, h.NewReadingHandler)
@@ -89,6 +90,7 @@ func main() {
 	db.AutoMigrate(&structs.Reading{})
 
 	// https://pkg.go.dev/github.com/go-redis/redis#ParseURL
+	fmt.Println(os.Getenv("REDIS_URL"))
 	opt, err := redis.ParseURL(os.Getenv("REDIS_URL"))
 	if err != nil {
 		panic(err)
