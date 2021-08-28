@@ -33,8 +33,8 @@ func SendRecoveryEmail(email, id string) error {
 	from := mail.NewEmail("Bloom Health", os.Getenv("EMAIL_SENDER"))
 	subject := "Password reset"
 	to := mail.NewEmail("Bloom User", email)
-	plainTextContent := "Please visit " + os.Getenv("FRONTEND_URL") + "/recover?id=" + id + " to reset your password"
-	htmlContent := "You may reset your password by clicking <a href=\"" + os.Getenv("FRONTEND_URL") + "/recover?id=" + id + "\">here.</a>"
+	plainTextContent := "Please visit " + os.Getenv("FRONTEND_URL") + "/recover/setPassword?id=" + id + " to reset your password"
+	htmlContent := "You may reset your password by clicking <a href=\"" + os.Getenv("FRONTEND_URL") + "/recover/setPassword?id=" + id + "\">here.</a>"
 	message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
 	client := sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY"))
 	response, err := client.Send(message)

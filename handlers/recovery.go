@@ -12,17 +12,18 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// TODO make this post using json
 func (e *Handlers) StartRecoveryProcessHandler(c *gin.Context) {
 	em := c.DefaultQuery("email", "")
 	if em == "" {
-		c.JSON(400, gin.H{"message": "invalad params"})
+		InvalidCredsErr(c)
 		return
 	}
 
 	var user structs.User
 	err := e.DbConn.First(&user, "email = ?", em).Error
 	if err != nil {
-		c.JSON(401, gin.H{"message": "that email is not associated with any user"})
+		UserDoesntExistErr(c)
 		return
 	}
 	user.RecoveryID = uuid.NewString()
@@ -30,25 +31,27 @@ func (e *Handlers) StartRecoveryProcessHandler(c *gin.Context) {
 	// TK send email
 	e.DbConn.Save(&user)
 	email.SendRecoveryEmail(user.Email, user.RecoveryID)
-	c.Redirect(http.StatusFound, os.Getenv("FRONTEND_URL")+"/msg="+url.QueryEscape("An email has been sent to "+user.Email+" to recover your password"))
-
+	c.JSON(http.StatusAccepted, structs.JsonResponse{Succeeded: true, Message: "A recovery link has been sent to " + user.Email})
 }
 
 func (e *Handlers) EndRecoveryProcessHandler(c *gin.Context) {
 	var payload structs.RecoveryJSONPayload
 	var user structs.User
 	if err := c.ShouldBind(&payload); err != nil {
-		c.JSON(400, gin.H{"message": "invalid payload"})
+		InvalidCredsErr(c)
 		return
 	}
 	if err := e.DbConn.Where(&structs.User{RecoveryID: payload.RecoveryID}).First(&user).Error; err != nil {
-		c.JSON(400, gin.H{"message": "no user found"})
+		SessionNotFoundErr(c)
 		return
+	}
+	if user.Email != payload.Email {
+		UserDoesntExistErr(c)
 	}
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(payload.Password), 8)
 	user.Password = string(hashedPassword)
 	e.DbConn.Save(&user)
-	c.JSON(200, gin.H{"message": "new password saved"})
+	c.JSON(200, structs.JsonResponse{Succeeded: true, Message: "Password reset. Please log in again"})
 }
 
 func (e *Handlers) ConfirmEmailHandler(c *gin.Context) {

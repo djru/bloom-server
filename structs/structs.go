@@ -11,6 +11,7 @@ type LoginJSONPayload struct {
 }
 
 type RecoveryJSONPayload struct {
+	Email      string `json:"email" binding:"required"`
 	RecoveryID string `json:"recovery_id" binding:"required"`
 	Password   string `json:"password" binding:"required"`
 }

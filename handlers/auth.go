@@ -97,49 +97,6 @@ func (e *Handlers) LogoutHandler(c *gin.Context) {
 	c.Redirect(http.StatusFound, os.Getenv("FRONTEND_URL")+"?msg="+url.QueryEscape("You have been logged out"))
 }
 
-func (e *Handlers) LoginHandlerOld(c *gin.Context) {
-	var loginCreds structs.LoginJSONPayload
-	new := false
-	if err := c.ShouldBind(&loginCreds); err != nil {
-		MalformedErr(c)
-		return
-	}
-
-	var user structs.User
-	if err := e.DbConn.Where(&structs.User{Email: loginCreds.Email}).First(&user).Error; err != nil {
-		// hash the password
-		hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(loginCreds.Password), 8)
-		confirmID := uuid.NewString()
-		// create a new user
-		user = structs.User{Email: loginCreds.Email, Password: string(hashedPassword), ConfirmID: confirmID}
-		// save
-		e.DbConn.Create(&user)
-		new = true
-		email.SendConfirmEmail(user.Email, user.ConfirmID)
-		// TK send email to /
-		// if the user is found, compare the passwords
-	} else if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginCreds.Password)); err != nil {
-		c.JSON(400, gin.H{"status": "failed", "message": "bad credentials"})
-		return
-	}
-	session := uuid.NewString()
-
-	// TODO make this a transaction
-	if err := e.RedisConn.Set("session:"+session, fmt.Sprint(user.ID), 7*24*time.Hour).Err(); err != nil {
-		panic(err)
-	}
-	if err := e.RedisConn.SAdd("sessionsForUser:"+fmt.Sprint(user.ID), session).Err(); err != nil {
-		panic(err)
-	}
-	c.SetCookie("session", session, week, "/", os.Getenv("DOMAIN"), true, true)
-	msg := "logged in"
-	if new {
-		msg = fmt.Sprintf("signed up. You can confirm you email %s at /confirm/%s \n", user.Email, user.ConfirmID)
-	}
-
-	c.JSON(200, gin.H{"status": "succeeded", "message": msg, "new": new})
-}
-
 func (e *Handlers) SessionMiddleware(c *gin.Context) {
 	session, err := c.Cookie("session")
 	if err != nil || session == "" {
