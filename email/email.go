@@ -34,7 +34,7 @@ func SendRecoveryEmail(email, id string) error {
 	subject := "Password reset"
 	to := mail.NewEmail("Bloom User", email)
 	plainTextContent := "Please visit " + os.Getenv("FRONTEND_URL") + "/recover/setPassword?id=" + id + " to reset your password"
-	htmlContent := "You may reset your password by clicking <a href=\"" + os.Getenv("FRONTEND_URL") + "/recover/setPassword?id=" + id + "\">here.</a>"
+	htmlContent := "You may reset your password by clicking <a href=\"" + os.Getenv("FRONTEND_URL") + "/recover/setPassword?id=" + id + "\">here.</a>. This code will expire in 20 minutes."
 	message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
 	client := sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY"))
 	response, err := client.Send(message)

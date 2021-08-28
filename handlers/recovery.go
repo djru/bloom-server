@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -27,7 +28,8 @@ func (e *Handlers) StartRecoveryProcessHandler(c *gin.Context) {
 		return
 	}
 	user.RecoveryID = uuid.NewString()
-
+	// set the expiry to be 20 minutes in the future
+	user.RecoveryExpiry = time.Now().Add(time.Minute * 20).Unix()
 	// TK send email
 	e.DbConn.Save(&user)
 	email.SendRecoveryEmail(user.Email, user.RecoveryID)
@@ -47,7 +49,14 @@ func (e *Handlers) EndRecoveryProcessHandler(c *gin.Context) {
 	}
 	if user.Email != payload.Email {
 		UserDoesntExistErr(c)
+		return
 	}
+
+	if user.RecoveryExpiry < time.Now().Unix() {
+		ExpiredErr(c)
+		return
+	}
+
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(payload.Password), 8)
 	user.Password = string(hashedPassword)
 	e.DbConn.Save(&user)

@@ -20,6 +20,10 @@ func UserDoesntExistErr(c *gin.Context) {
 	c.JSON(400, structs.JsonResponse{Succeeded: false, Message: "A user with that email doesn't exist"})
 	return
 }
+func ExpiredErr(c *gin.Context) {
+	c.JSON(400, structs.JsonResponse{Succeeded: false, Message: "Expired!"})
+	return
+}
 
 func InvalidCredsErr(c *gin.Context) {
 	c.JSON(400, structs.JsonResponse{Succeeded: false, Message: "The password does not match"})

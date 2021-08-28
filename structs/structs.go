@@ -25,11 +25,12 @@ type NewReadingJSONPayload struct {
 
 type User struct {
 	gorm.Model
-	Email      string `gorm:"index"`
-	Password   string
-	Confirmed  bool `gorm:"default:false"`
-	ConfirmID  string
-	RecoveryID string
+	Email          string `gorm:"index"`
+	Password       string
+	Confirmed      bool `gorm:"default:false"`
+	ConfirmID      string
+	RecoveryID     string
+	RecoveryExpiry int64 `gorm:"default:0"`
 }
 
 func (user *User) GetReturnableData() gin.H {
