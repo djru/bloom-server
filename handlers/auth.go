@@ -50,7 +50,7 @@ func (e *Handlers) SignupHandler(c *gin.Context) {
 		panic(err)
 	}
 	c.SetCookie("session", session, week, "/", os.Getenv("DOMAIN"), true, true)
-	c.JSON(200, structs.JsonResponse{Succeeded: true, Message: "New user has been created. Please check your email for a confirmation."})
+	c.JSON(200, structs.JsonResponse{Succeeded: true, Message: "New user has been created. Please check your email for a confirmation.", Data: user.GetReturnableData()})
 }
 
 func (e *Handlers) LoginHandler(c *gin.Context) {
@@ -81,7 +81,7 @@ func (e *Handlers) LoginHandler(c *gin.Context) {
 		panic(err)
 	}
 	c.SetCookie("session", session, week, "/", os.Getenv("DOMAIN"), true, true)
-	c.JSON(200, structs.JsonResponse{Succeeded: true})
+	c.JSON(200, structs.JsonResponse{Succeeded: true, Data: user.GetReturnableData()})
 }
 
 func (e *Handlers) LogoutHandler(c *gin.Context) {
@@ -164,6 +164,5 @@ func (e *Handlers) WhoAmIHandler(c *gin.Context) {
 	id := c.MustGet("userId").(uint64)
 	var user structs.User
 	e.DbConn.Find(&user, id)
-	userData := gin.H{"email": user.Email, "id": user.ID, "confirmed": user.Confirmed}
-	c.JSON(200, structs.JsonResponse{Succeeded: true, Data: userData})
+	c.JSON(200, structs.JsonResponse{Succeeded: true, Data: user.GetReturnableData()})
 }

@@ -1,6 +1,9 @@
 package structs
 
-import "gorm.io/gorm"
+import (
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
+)
 
 type LoginJSONPayload struct {
 	Email    string `json:"email" binding:"required"`
@@ -26,6 +29,10 @@ type User struct {
 	Confirmed  bool `gorm:"default:false"`
 	ConfirmID  string
 	RecoveryID string
+}
+
+func (user *User) GetReturnableData() gin.H {
+	return gin.H{"email": user.Email, "id": user.ID, "confirmed": user.Confirmed}
 }
 
 type Reading struct {
