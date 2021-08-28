@@ -5,6 +5,7 @@ import (
 	"bloom/structs"
 	"net/http"
 	"net/url"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -29,7 +30,7 @@ func (e *Handlers) StartRecoveryProcessHandler(c *gin.Context) {
 	// TK send email
 	e.DbConn.Save(&user)
 	email.SendRecoveryEmail(user.Email, user.RecoveryID)
-	c.Redirect(http.StatusFound, "https://bloomhealth.app/msg="+url.QueryEscape("An email has been sent to "+user.Email+" to recover your password"))
+	c.Redirect(http.StatusFound, os.Getenv("FRONTEND_URL")+"/msg="+url.QueryEscape("An email has been sent to "+user.Email+" to recover your password"))
 
 }
 
@@ -61,7 +62,7 @@ func (e *Handlers) ConfirmEmailHandler(c *gin.Context) {
 	user.ConfirmID = ""
 	user.Confirmed = true
 	e.DbConn.Save(&user)
-	c.Redirect(http.StatusFound, "https://bloomhealth.app?msg="+url.QueryEscape("Email confirmed"))
+	c.Redirect(http.StatusFound, os.Getenv("FRONTEND_URL")+"?msg="+url.QueryEscape("Email confirmed"))
 }
 
 func (e *Handlers) ReSendConfirmEmailHandler(c *gin.Context) {
@@ -69,5 +70,5 @@ func (e *Handlers) ReSendConfirmEmailHandler(c *gin.Context) {
 	var user structs.User
 	e.DbConn.Find(&user, id)
 	email.SendConfirmEmail(user.Email, user.ConfirmID)
-	c.Redirect(http.StatusFound, "https://bloomhealth.app/me?msg="+url.QueryEscape("Confirmation email sent"))
+	c.Redirect(http.StatusFound, os.Getenv("FRONTEND_URL")+"/me?msg="+url.QueryEscape("Confirmation email sent"))
 }
