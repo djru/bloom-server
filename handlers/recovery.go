@@ -69,6 +69,10 @@ func (e *Handlers) ReSendConfirmEmailHandler(c *gin.Context) {
 	id := c.MustGet("userId").(uint64)
 	var user structs.User
 	e.DbConn.Find(&user, id)
+	if user.Confirmed {
+		c.Redirect(http.StatusFound, os.Getenv("FRONTEND_URL")+"/me?msg="+url.QueryEscape("Your email is already confirmed"))
+		return
+	}
 	email.SendConfirmEmail(user.Email, user.ConfirmID)
 	c.Redirect(http.StatusFound, os.Getenv("FRONTEND_URL")+"/me?msg="+url.QueryEscape("Confirmation email sent"))
 }
