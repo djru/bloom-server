@@ -106,9 +106,9 @@ func (e *Handlers) SessionMiddleware(c *gin.Context) {
 	}
 	id, err := e.RedisConn.Get("session:" + session).Result()
 	if err != nil {
-		SessionNotFoundErr(c)
 		c.Abort()
 		c.SetCookie("session", "", 0, "/", os.Getenv("DOMAIN"), true, true)
+		SessionNotFoundErr(c)
 		return
 	}
 
