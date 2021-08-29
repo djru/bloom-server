@@ -31,7 +31,7 @@ func InvalidCredsErr(c *gin.Context) {
 }
 
 func SessionNotFoundErr(c *gin.Context) {
-	c.JSON(400, structs.JsonResponse{Succeeded: false, Message: "The session was not found"})
+	c.JSON(400, structs.JsonResponse{Succeeded: false, Message: "The session wasn't found"})
 	return
 }
 
