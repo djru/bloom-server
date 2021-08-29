@@ -3,6 +3,7 @@ package handlers
 import (
 	"bloom/email"
 	"bloom/structs"
+	"fmt"
 	"net/http"
 	"net/url"
 	"os"
@@ -60,6 +61,15 @@ func (e *Handlers) EndRecoveryProcessHandler(c *gin.Context) {
 	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(payload.Password), 8)
 	user.Password = string(hashedPassword)
 	e.DbConn.Save(&user)
+
+	// log this user out everywhere
+	sessions, _ := e.RedisConn.SMembers("sessionsForUser:" + fmt.Sprint(user.ID)).Result()
+	for _, sess := range sessions {
+		e.RedisConn.Del("session:" + string(sess))
+	}
+	e.RedisConn.Del("sessionsForUser:" + fmt.Sprint(user.ID))
+	c.SetCookie("session", "", 0, "/", os.Getenv("DOMAIN"), true, true)
+
 	c.JSON(200, structs.JsonResponse{Succeeded: true, Message: "Password reset. Please log in again"})
 }
 

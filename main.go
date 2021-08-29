@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -70,7 +71,7 @@ func main() {
 	// This is because vercel automatically redirects http to https
 	// which causes a redirect loop because ever time the browser is redirected, cloudflare turns it into an http request
 	// so I had to turn off cloudflare proxing for the frontend.
-	config.AllowOrigins = []string{"https://bloom-health.herokuapp.com", "https://bloom-ui.vercel.app", "https://www.bloomhealth.app", "https://bloomhealth.app"}
+	config.AllowOrigins = []string{"https://www.bloomhealth.app", "https://bloomhealth.app", os.Getenv("FRONTEND_URL"), strings.Replace(os.Getenv("FRONTEND_URL"), "://", "://www.", 1)}
 	config.AllowCredentials = true
 	r.Use(cors.New(config))
 
