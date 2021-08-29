@@ -19,9 +19,6 @@ import (
 	"bloom/structs"
 )
 
-// TODO email verification on signup
-// TODO domain name
-// TODO deploy the front end to vercel
 // TODO find a way to keep the heroku app up
 // TODO set up stack: vercel, heroku, sendgrid, cloudflare
 // TODO endpoint to get all readings as csv

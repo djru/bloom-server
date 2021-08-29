@@ -13,8 +13,8 @@ func SendConfirmEmail(email, id string) error {
 	from := mail.NewEmail("Bloom Health", os.Getenv("EMAIL_SENDER"))
 	subject := "Please confirm your email address"
 	to := mail.NewEmail("Bloom User", email)
-	plainTextContent := "Thank you for signing up for bloom. Please confirm your email by visiting " + os.Getenv("FRONTEND_URL") + "/confirm/" + id
-	htmlContent := "Thank you for signing up for bloom. Please confirm your email by clicking <a href=\"" + os.Getenv("FRONTEND_URL") + "/confirm/" + id + "\">here.</a>"
+	plainTextContent := "Thank you for signing up for bloom. Please confirm your email by visiting " + os.Getenv("BACKEND_URL") + "/confirm/" + id
+	htmlContent := "Thank you for signing up for bloom. Please confirm your email by clicking <a href=\"" + os.Getenv("BACKEND_URL") + "/confirm/" + id + "\">here.</a>"
 	message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
 	client := sendgrid.NewSendClient(os.Getenv("SENDGRID_API_KEY"))
 	response, err := client.Send(message)
