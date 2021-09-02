@@ -48,7 +48,7 @@ type Reading struct {
 }
 
 type JsonResponse struct {
-	Succeeded bool                   `json:"succeeded"`
-	Message   string                 `json:"message"`
-	Data      map[string]interface{} `json:"data"`
+	Succeeded bool        `json:"succeeded"`
+	Message   string      `json:"message"`
+	Data      interface{} `json:"data"`
 }
